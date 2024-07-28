@@ -20,10 +20,10 @@ def plot_data(timestamps, download_speeds, upload_speeds, pings):
     plt.plot(timestamps, download_speeds, label='Download Speed (Mbps)', color='blue')
     plt.plot(timestamps, upload_speeds, label='Upload Speed (Mbps)', color='green')
     
-    # Process ping values
+    # Process ping values for display
     processed_pings = []
     for i, ping in enumerate(pings):
-        ping_limit = 50
+        ping_limit = 50  # Limit for ping values
         if ping > ping_limit:
             processed_pings.append(ping_limit)
             plt.annotate(
@@ -35,12 +35,25 @@ def plot_data(timestamps, download_speeds, upload_speeds, pings):
             )
         else:
             processed_pings.append(ping)
+        
+        # Annotate ping values every 100 entries at the top of the graph
+        if i % 10 == 0:
+            if ping == 0:
+                continue
+            else:
+                plt.annotate(
+                    f'{ping}',
+                    xy=(timestamps[i], max(max(download_speeds), max(upload_speeds)) + 5),
+                    xytext=(timestamps[i], max(max(download_speeds), max(upload_speeds)) + 5),
+                    ha='center',
+                    color='black'
+                )
     
-    # Plot ping values as a line
+    # Plot ping values as a dashed line
     plt.plot(timestamps, processed_pings, label='Ping (ms)', color='red', linestyle='dashed')
 
     plt.xlabel('Time')
-    plt.ylabel('Speed')
+    plt.ylabel('Speed (Mbps)')
     plt.title('Network Speeds Over Time')
     plt.legend()
     plt.grid(True)
