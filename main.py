@@ -2,44 +2,60 @@ import speedtest
 import csv
 import time
 from datetime import datetime
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def measure_speed():
-    print("Measuring Speed...")
+    logging.info("Measuring Speed...")
     try:
-        print("Testing Speed...")
+        logging.info("Testing Speed...")
         s = speedtest.Speedtest()
-        print("Testing Download Speed...")
+        logging.info("Testing Download Speed...")
         s.download()
-        print("Testing Upload Speed...")
+        logging.info("Testing Upload Speed...")
         s.upload()
-        print(f"Results of scan: {s.results.dict()}")
-        return s.results.dict()
+        result = s.results.dict()
+        logging.info(f"Results of scan: {result}")
+        return result
     except speedtest.ConfigRetrievalError as e:
-        print(f"Configuration retrieval error: {e}")
+        logging.error(f"Configuration retrieval error: {e}")
     except speedtest.SpeedtestException as e:
-        print(f"Speedtest error: {e}")
+        logging.error(f"Speedtest error: {e}")
+    except Exception as e:
+        logging.error(f"Unexpected error: {e}")
     return None
 
 def save_data(data, filename='network_speeds.csv'):
-    print("Saving Data...")
+    logging.info("Saving Data...")
     if data is not None:
-        print("Checking Data...")
         with open(filename, mode='a', newline='') as file:
             writer = csv.writer(file)
-            print("Writing data...")
+            logging.info("Writing data...")
             writer.writerow([data['timestamp'], data['download'], data['upload'], data['ping']])
-            print(f"Wrote data: {data['timestamp'], data['download'], data['upload'], data['ping']}")
+            logging.info(f"Wrote data: {data['timestamp'], data['download'], data['upload'], data['ping']}")
+    else:
+        logging.warning("No data to save (possibly no connection)")
 
 if __name__ == "__main__":
     while True:
-        sleep_duration = 0
-        print("Starting measure speed process...")
+        sleep_duration = 1
+        logging.info("Starting measure speed process...")
         speed_data = measure_speed()
-        print("Measured Speed")
-        print("Starting save data process...")
+        if speed_data is None:
+            logging.error("No internet connection or unable to retrieve data")
+            speed_data = {
+                'timestamp': datetime.utcnow().isoformat() + 'Z',
+                'download': 0,
+                'upload': 0,
+                'ping': 0
+            }
+        logging.info("Measured Speed")
+        logging.info("Starting save data process...")
         save_data(speed_data)
-        print("Saved data")
-        print(f"Sleeping for {sleep_duration} seconds...")
-        print("------------------------------")
+        logging.info("Saved data")
+        logging.info(f"Sleeping for {sleep_duration} seconds...")
+        logging.info("------------------------------")
         time.sleep(sleep_duration)
-        print("Starting New Scan...")
+        logging.info("Starting New Scan...")
