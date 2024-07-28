@@ -23,12 +23,13 @@ def plot_data(timestamps, download_speeds, upload_speeds, pings):
     # Process ping values
     processed_pings = []
     for i, ping in enumerate(pings):
-        if ping > 150:
-            processed_pings.append(150)
+        ping_limit = 50
+        if ping > ping_limit:
+            processed_pings.append(ping_limit)
             plt.annotate(
-                '>',
-                xy=(timestamps[i], 150),
-                xytext=(timestamps[i], 150 + 5),
+                '^',
+                xy=(timestamps[i], ping_limit),
+                xytext=(timestamps[i], ping_limit + 1),
                 ha='center',
                 color='red'
             )
